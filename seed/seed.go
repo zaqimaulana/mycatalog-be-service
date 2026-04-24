@@ -13,16 +13,46 @@ func main() {
 	config.InitDatabase()
 
 	products := []models.Product{
-		{Name: "Nasi Goreng Spesial", Price: 25000, Category: "Makanan", Stock: 50,
-			Description: "Nasi goreng dengan telur dan ayam", ImageURL: "https://picsum.photos/400"},
-		{Name: "Sate Ayam 10 Tusuk", Price: 20000, Category: "Makanan", Stock: 100,
-			Description: "Sate ayam dengan bumbu kacang", ImageURL: "https://picsum.photos/401"},
-		{Name: "Es Teh Manis", Price: 8000, Category: "Minuman", Stock: 200,
-			Description: "Es teh manis segar", ImageURL: "https://picsum.photos/402"},
-		{Name: "Kopi Susu", Price: 15000, Category: "Minuman", Stock: 150,
-			Description: "Kopi susu kekinian", ImageURL: "https://picsum.photos/403"},
-		{Name: "Ayam Bakar", Price: 30000, Category: "Makanan", Stock: 30,
-			Description: "Ayam bakar dengan sambal", ImageURL: "https://picsum.photos/404"},
+		{
+			Name:        "Heineken Beer",
+			Price:       45000,
+			Category:    "Beer",
+			Stock:       100,
+			Description: "Premium lager beer from Netherlands",
+			ImageURL:    "https://images.unsplash.com/photo-1608270586620-248524c67de9",
+		},
+		{
+			Name:        "Corona Extra",
+			Price:       50000,
+			Category:    "Beer",
+			Stock:       80,
+			Description: "Light refreshing Mexican beer",
+			ImageURL:    "https://images.unsplash.com/photo-1584225064536-d0fbc0a10f18",
+		},
+		{
+			Name:        "Budweiser",
+			Price:       47000,
+			Category:    "Beer",
+			Stock:       90,
+			Description: "American classic beer",
+			ImageURL:    "https://images.unsplash.com/photo-1593803431808-1a4a62a0c39d",
+		},
+		{
+			Name:        "Guinness Stout",
+			Price:       60000,
+			Category:    "Beer",
+			Stock:       60,
+			Description: "Dark Irish stout beer",
+			ImageURL:    "https://images.unsplash.com/photo-1618886614638-80e3c103d31a",
+		},
+		{
+			Name:        "Bintang Beer",
+			Price:       40000,
+			Category:    "Beer",
+			Stock:       120,
+			Description: "Local Indonesian favorite beer",
+			ImageURL:    "https://images.unsplash.com/photo-1622484212850-eb596d769edc",
+		},
 	}
 
 	for _, p := range products {

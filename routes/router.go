@@ -49,6 +49,8 @@ func SetupRouter() *gin.Engine {
 		protected := v1.Group("")
 		protected.Use(middleware.AuthMiddleware())
 		{
+			// FCM token
+			protected.PUT("/auth/fcm-token", authHandler.UpdateFCMToken)
 			// Products
 			products := protected.Group("/products")
 			{
@@ -77,9 +79,10 @@ func SetupRouter() *gin.Engine {
 			// Orders
 			orders := protected.Group("/orders")
 			{
-				orders.POST("/checkout", orderHandler.Checkout) // POST   /v1/orders/checkout
-				orders.GET("", orderHandler.GetMyOrders)        // GET    /v1/orders
-				orders.GET("/:id", orderHandler.GetOrderByID)   // GET    /v1/orders/:id
+				orders.POST("", orderHandler.CreateOrder)        // POST   /v1/orders      ← Flutter
+				orders.POST("/checkout", orderHandler.Checkout)  // POST   /v1/orders/checkout ← backend cart
+				orders.GET("", orderHandler.GetMyOrders)         // GET    /v1/orders
+				orders.GET("/:id", orderHandler.GetOrderByID)    // GET    /v1/orders/:id
 			}
 
 			// Admin — order management

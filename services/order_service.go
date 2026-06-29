@@ -11,6 +11,8 @@ type OrderService struct {
 	orderRepo   *repositories.OrderRepository
 	cartRepo    *repositories.CartRepository
 	productRepo *repositories.ProductRepository
+	userRepo    *repositories.UserRepository
+	fcmService  *FCMService
 }
 
 func NewOrderService() *OrderService {
@@ -18,6 +20,8 @@ func NewOrderService() *OrderService {
 		orderRepo:   repositories.NewOrderRepository(),
 		cartRepo:    repositories.NewCartRepository(),
 		productRepo: repositories.NewProductRepository(),
+		userRepo:    repositories.NewUserRepository(),
+		fcmService:  NewFCMService(),
 	}
 }
 
@@ -126,6 +130,14 @@ func (s *OrderService) CreateOrderDirect(userID uint, req *models.DirectOrderReq
 	if err := s.orderRepo.Create(order); err != nil {
 		return nil, err
 	}
+
+	// Kirim FCM notification di goroutine agar tidak block response
+	go func() {
+		user, err := s.userRepo.FindByID(userID)
+		if err == nil {
+			s.fcmService.SendOrderConfirmation(user.FCMToken, totalAmount)
+		}
+	}()
 
 	return order, nil
 }

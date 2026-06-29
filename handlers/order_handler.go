@@ -17,6 +17,28 @@ func NewOrderHandler() *OrderHandler {
 	return &OrderHandler{orderService: services.NewOrderService()}
 }
 
+// CreateOrder - POST /v1/orders (terima items dari Flutter local cart)
+func (h *OrderHandler) CreateOrder(c *gin.Context) {
+	userID := getContextUserID(c)
+
+	var req models.DirectOrderRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": err.Error()})
+		return
+	}
+
+	order, err := h.orderService.CreateOrderDirect(userID, &req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": err.Error()})
+		return
+	}
+	c.JSON(http.StatusCreated, gin.H{
+		"success": true,
+		"message": "Pesanan berhasil dibuat",
+		"data":    order,
+	})
+}
+
 // Checkout - POST /v1/orders/checkout
 func (h *OrderHandler) Checkout(c *gin.Context) {
 	userID := getContextUserID(c)

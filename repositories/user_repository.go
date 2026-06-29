@@ -37,3 +37,15 @@ func (r *UserRepository) Create(user *models.User) error {
 func (r *UserRepository) Update(user *models.User) error {
 	return config.DB.Save(user).Error
 }
+
+// FindByID mencari user berdasarkan ID
+func (r *UserRepository) FindByID(id uint) (*models.User, error) {
+	var user models.User
+	err := config.DB.First(&user, id).Error
+	return &user, err
+}
+
+// UpdateFCMToken update FCM token user
+func (r *UserRepository) UpdateFCMToken(userID uint, token string) error {
+	return config.DB.Model(&models.User{}).Where("id = ?", userID).Update("fcm_token", token).Error
+}

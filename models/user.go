@@ -12,6 +12,7 @@ type User struct {
 	Role          string `gorm:"size:20;default:user"          json:"role"`
 	EmailVerified bool   `gorm:"default:false"                 json:"email_verified"`
 	LastLoginAt   *int64 `gorm:"index"                         json:"last_login_at,omitempty"`
+	FCMToken      string `gorm:"size:500"                      json:"fcm_token,omitempty"`
 }
 
 // gorm.Model memberikan fields:

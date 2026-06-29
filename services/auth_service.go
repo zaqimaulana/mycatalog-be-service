@@ -78,6 +78,11 @@ func (s *AuthService) VerifyFirebaseToken(firebaseToken string) (string, *models
 	return jwtToken, user, nil
 }
 
+// SaveFCMToken simpan FCM device token milik user
+func (s *AuthService) SaveFCMToken(userID uint, token string) error {
+	return s.userRepo.UpdateFCMToken(userID, token)
+}
+
 // generateJWT membuat JWT token dengan payload user
 func (s *AuthService) generateJWT(user *models.User) (string, error) {
 	expireHours, _ := strconv.Atoi(os.Getenv("JWT_EXPIRE_HOURS"))

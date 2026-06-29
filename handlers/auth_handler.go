@@ -16,6 +16,23 @@ func NewAuthHandler() *AuthHandler {
 	return &AuthHandler{authService: services.NewAuthService()}
 }
 
+// UpdateFCMToken — PUT /v1/auth/fcm-token (protected)
+func (h *AuthHandler) UpdateFCMToken(c *gin.Context) {
+	userID := getContextUserID(c)
+	var req struct {
+		FCMToken string `json:"fcm_token" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "fcm_token wajib diisi"})
+		return
+	}
+	if err := h.authService.SaveFCMToken(userID, req.FCMToken); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Gagal simpan FCM token"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "FCM token berhasil disimpan"})
+}
+
 // VerifyToken godoc
 // POST /auth/verify-token
 // Terima Firebase ID Token → verifikasi → return Backend JWT

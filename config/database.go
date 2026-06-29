@@ -49,6 +49,9 @@ func InitDatabase() {
 	sqlDB.SetMaxOpenConns(25) // Maksimal 25 koneksi terbuka
 	sqlDB.SetMaxIdleConns(10) // Maksimal 10 koneksi idle
 
+	// Fix id column type for tables created before GORM v2 (int -> bigint unsigned)
+	fixIDColumns(DB)
+
 	// AutoMigrate: buat/update tabel sesuai struct model
 	// GORM akan buat tabel jika belum ada
 	err = DB.AutoMigrate(
@@ -63,4 +66,18 @@ func InitDatabase() {
 	}
 
 	log.Println("Database terhubung dan tabel sudah di-migrate")
+}
+
+// fixIDColumns converts id columns from int to bigint unsigned for GORM v2 compatibility.
+// GORM v2 expects uint primary keys to be bigint unsigned; tables created manually or with
+// older tooling often use plain int, causing AutoMigrate to generate ADD instead of MODIFY.
+func fixIDColumns(db *gorm.DB) {
+	tables := []string{"users", "products", "cart_items", "orders", "order_items"}
+	for _, table := range tables {
+		if db.Migrator().HasTable(table) {
+			db.Exec(fmt.Sprintf(
+				"ALTER TABLE `%s` MODIFY `id` bigint unsigned NOT NULL AUTO_INCREMENT", table,
+			))
+		}
+	}
 }

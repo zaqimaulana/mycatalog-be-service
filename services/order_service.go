@@ -114,14 +114,9 @@ func (s *OrderService) CreateOrderDirect(userID uint, req *models.DirectOrderReq
 		}
 	}
 
-	status := models.OrderStatusPending
-	if req.PaymentStatus == "paid" {
-		status = models.OrderStatusPaid
-	}
-
 	order := &models.Order{
 		UserID:           userID,
-		Status:           status,
+		Status:           models.OrderStatusPaid,
 		TotalAmount:      totalAmount,
 		PaymentReference: req.PaymentReference,
 		PaymentMethod:    req.PaymentMethod,

@@ -79,10 +79,11 @@ func SetupRouter() *gin.Engine {
 			// Orders
 			orders := protected.Group("/orders")
 			{
-				orders.POST("", orderHandler.CreateOrder)        // POST   /v1/orders      ← Flutter
-				orders.POST("/checkout", orderHandler.Checkout)  // POST   /v1/orders/checkout ← backend cart
-				orders.GET("", orderHandler.GetMyOrders)         // GET    /v1/orders
-				orders.GET("/:id", orderHandler.GetOrderByID)    // GET    /v1/orders/:id
+				orders.POST("", orderHandler.CreateOrder)                    // POST  /v1/orders
+				orders.POST("/checkout", orderHandler.Checkout)            // POST  /v1/orders/checkout
+				orders.GET("", orderHandler.GetMyOrders)                   // GET   /v1/orders
+				orders.GET("/:id", orderHandler.GetOrderByID)              // GET   /v1/orders/:id
+				orders.PATCH("/:id/status", orderHandler.UpdateMyOrderStatus) // PATCH /v1/orders/:id/status
 			}
 
 			// Admin — order management

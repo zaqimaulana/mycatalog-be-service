@@ -118,9 +118,15 @@ func (s *OrderService) CreateOrderDirect(userID uint, req *models.DirectOrderReq
 		}
 	}
 
+	// Gunakan PaymentStatus dari request; default ke 'pending'
+	status := models.OrderStatusPending
+	if models.OrderStatus(req.PaymentStatus) == models.OrderStatusPaid {
+		status = models.OrderStatusPaid
+	}
+
 	order := &models.Order{
 		UserID:           userID,
-		Status:           models.OrderStatusPaid,
+		Status:           status,
 		TotalAmount:      totalAmount,
 		PaymentReference: req.PaymentReference,
 		PaymentMethod:    req.PaymentMethod,
@@ -131,15 +137,49 @@ func (s *OrderService) CreateOrderDirect(userID uint, req *models.DirectOrderReq
 		return nil, err
 	}
 
-	// Kirim FCM notification di goroutine agar tidak block response
-	go func() {
-		user, err := s.userRepo.FindByID(userID)
-		if err == nil {
-			s.fcmService.SendOrderConfirmation(user.FCMToken, totalAmount)
-		}
-	}()
+	// Kirim FCM hanya ketika order langsung berstatus paid
+	if status == models.OrderStatusPaid {
+		go func() {
+			user, err := s.userRepo.FindByID(userID)
+			if err == nil {
+				s.fcmService.SendOrderConfirmation(user.FCMToken, totalAmount)
+			}
+		}()
+	}
 
 	return order, nil
+}
+
+// UpdateMyOrderStatus — user update status order miliknya sendiri (pending → paid)
+func (s *OrderService) UpdateMyOrderStatus(orderID, userID uint, status models.OrderStatus) error {
+	validStatuses := map[models.OrderStatus]bool{
+		models.OrderStatusPaid:       true,
+		models.OrderStatusCancelled:  true,
+	}
+	if !validStatuses[status] {
+		return errors.New("status tidak valid")
+	}
+
+	order, err := s.orderRepo.GetByID(orderID, userID)
+	if err != nil {
+		return errors.New("order tidak ditemukan")
+	}
+
+	if err := s.orderRepo.UpdateStatus(orderID, status); err != nil {
+		return err
+	}
+
+	// Kirim FCM konfirmasi ketika order berhasil dibayar
+	if status == models.OrderStatusPaid {
+		go func() {
+			user, err := s.userRepo.FindByID(userID)
+			if err == nil {
+				s.fcmService.SendOrderConfirmation(user.FCMToken, order.TotalAmount)
+			}
+		}()
+	}
+
+	return nil
 }
 
 func (s *OrderService) GetMyOrders(userID uint, page, limit int) ([]models.Order, int64, error) {

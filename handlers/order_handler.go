@@ -122,6 +122,31 @@ func (h *OrderHandler) GetAllOrders(c *gin.Context) {
 	})
 }
 
+// UpdateMyOrderStatus - PATCH /v1/orders/:id/status (user update order miliknya)
+func (h *OrderHandler) UpdateMyOrderStatus(c *gin.Context) {
+	userID := getContextUserID(c)
+
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID tidak valid"})
+		return
+	}
+
+	var req struct {
+		Status models.OrderStatus `json:"status" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": err.Error()})
+		return
+	}
+
+	if err := h.orderService.UpdateMyOrderStatus(uint(id), userID, req.Status); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "Status order diperbarui"})
+}
+
 // UpdateOrderStatus - PUT /v1/admin/orders/:id/status (admin only)
 func (h *OrderHandler) UpdateOrderStatus(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)

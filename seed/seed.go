@@ -55,8 +55,14 @@ func main() {
 		},
 	}
 
+	var created, skipped int
 	for _, p := range products {
-		config.DB.Create(&p)
+		result := config.DB.Where("name = ?", p.Name).FirstOrCreate(&p)
+		if result.RowsAffected > 0 {
+			created++
+		} else {
+			skipped++
+		}
 	}
-	log.Printf("Seed berhasil: %d produk ditambahkan", len(products))
+	log.Printf("Seed selesai: %d ditambahkan, %d sudah ada (dilewati)", created, skipped)
 }
